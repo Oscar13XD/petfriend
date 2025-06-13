@@ -1,0 +1,102 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-image:url(../multimedia/imagenes/FONDO\ \(1\).png); 
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: #fff;
+}
+/* Logotipo*/
+.logo{
+    border: 2px ;
+    border-radius: 10px;
+    margin: 0px;
+    text-align: center;
+}
+.login-container {
+    width: 350px;
+    background-color: rgba(219, 217, 217, 0.7);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow:0 10px 30px rgba(0, 0, 0, 0.2);
+    text-align:center
+}
+/* Título del formulario */
+.login-container h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #070000;
+    font-weight: 600;
+}
+
+/* Estilos para las etiquetas */
+.login-container label {
+    font-size: 14px;
+    margin-bottom: 8px;
+    text-align: left;
+    display: block;
+    color: #030303;
+}
+
+/* Estilos para los campos de entrada */
+.login-container input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    background-color: #f7f7f7;
+    color: #333;
+    font-size: 16px;
+    transition: 0.3s ease-in-out;
+}
+
+/* Efecto en los campos de entrada al enfocar */
+.login-container input:focus {
+    border: 1px solid #c0129a;
+    outline: none;
+    background-color: #a19fa1;
+}
+
+/* Botón de inicio de sesión */
+.login-container button {
+    width: 100%;
+    padding: 12px;
+    background-color: #070301;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+    font-weight: 600;
+}
+
+/* Efecto al pasar el mouse sobre el botón */
+.login-container button:hover {
+    background-color: #8a2075;
+}
+
+/* Mensaje de error */
+.login-container .error {
+    color: red;
+    font-size: 14px;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+/* Enlace a la página de registro */
+.login-container a {
+    color: #010001;
+    font-size: 14px;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+/* Efecto al pasar el mouse sobre el enlace */
+.login-container a:hover {
+    text-decoration: underline;
+}
