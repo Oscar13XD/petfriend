@@ -33,11 +33,11 @@
                             </div>
                             <div class="col-12">
                                 <label for="documento" class="form-label"># Documento</label>
-                                <input type="text" class="form-control" id="documento">
+                                <input type="number" class="form-control" id="documento">
                             </div>
                             <div class="col-12">
                                 <label for="ciudad" class="form-label">Ciudad</label>
-                                <input type="number" class="form-control" id="ciudad">
+                                <input type="text" class="form-control" id="ciudad">
                             </div>
                             <div class="col-12">
                                 <label for="celular" class="form-label"># celular</label>
