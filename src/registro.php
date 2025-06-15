@@ -3,17 +3,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link rel="stylesheet" href="./css/registro.css">
+  <link rel="stylesheet" href="/petfriend2/css/registro.css">
 </head>
 <body> 
     <div class="container vh-100">
         <div class="row justify-content-center align-items-center h-100 pt-4">
-            <div class="col-12 col-md-8 col-lg-6 col-xl-5">
-                <div class="card mb-4">
-                    <div class="card-header text-center">
+            <div class="col-12 col-md-8 col-lg-6 col-xl-5">               
+                    <div class="card-body">
+                        <div class="card-header text-center">
                         Registro
                     </div>
-                    <div class="card-body">
                         <form class="row g-2" id="registrar">
                             <div class="col-12">
                                 <label for="nombre" class="form-label">Nombre</label>

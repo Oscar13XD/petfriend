@@ -1,11 +1,35 @@
     body {
       overflow-x: hidden;
-    }
+    color:black;
+    text-align: var(--bs-body-text-align);
+    background-color: var(--bs-body-bg);
+}
+
     #sidebar {
       min-height: 100vh;
       transition: all 0.3s ease;
-      width: 250px;
+      width: 300px;
+      background-image: url(../multimedia/imagenes/barra.png);
+      background-size: contain
     }
+    #barra{
+    background-color: rgba(227, 226, 226, 0.7);
+
+}
+.h4 {
+      background-color: bisque;
+}
+ #titulo {
+      background-color: #f78b6a; /* amarillo tipo nav */
+      color: #212529; /* texto oscuro */
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      text-align: center;
+    }
+.text-white {
+    --bs-text-opacity: 1;
+    color: #030306 !important;
+}
     #sidebar.collapsed {
       margin-left: -250px;
     }
@@ -26,6 +50,12 @@
       #sidebar {
         position: absolute;
         z-index: 1000;
-        background-color: #343a40;
       }
     }
+#cierre {
+    background: #d61a1a;
+    border-color: #d61a1a;
+    color: white;
+    margin: 20px;
+    justify-content: center;    
+}

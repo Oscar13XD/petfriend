@@ -8,7 +8,7 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    color: #fff;
+    color: #030303;
 }
 /* Logotipo*/
 .logo{
@@ -19,10 +19,10 @@ body {
 }
 .login-container {
     width: 350px;
-    background-color: rgba(219, 217, 217, 0.7);
+    background-color: rgba(188, 184, 184, 0.7);
     padding: 30px;
     border-radius: 10px;
-    box-shadow:0 10px 30px rgba(0, 0, 0, 0.2);
+    box-shadow:0 10px 30px rgba(18, 18, 18, 0.2);
     text-align:center
 }
 /* Título del formulario */
@@ -48,9 +48,9 @@ body {
     padding: 12px;
     margin-bottom: 20px;
     border-radius: 5px;
-    border: 1px solid #ddd;
-    background-color: #f7f7f7;
-    color: #333;
+    border: 1px solid #f5f3f3;
+    background-color: #f9f7f7;
+    color: #0e0d0d;
     font-size: 16px;
     transition: 0.3s ease-in-out;
 }
@@ -78,7 +78,7 @@ body {
 
 /* Efecto al pasar el mouse sobre el botón */
 .login-container button:hover {
-    background-color: #8a2075;
+    background-color: #771bac;
 }
 
 /* Mensaje de error */
@@ -91,7 +91,7 @@ body {
 
 /* Enlace a la página de registro */
 .login-container a {
-    color: #010001;
+    color: #b813b8;
     font-size: 14px;
     text-decoration: none;
     transition: 0.3s;
@@ -99,5 +99,9 @@ body {
 
 /* Efecto al pasar el mouse sobre el enlace */
 .login-container a:hover {
+    text-decoration: underline;
+}
+a {
+    color: #d5dae0;
     text-decoration: underline;
 }
