@@ -1,3 +1,35 @@
+<?php
+
+session_start();
+require_once __DIR__ . '/../db/config.php';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $correo = $_POST['correo'];
+    $contrasena = $_POST['contrasena'];
+
+    $sql = "SELECT * FROM usuarios WHERE CORREO = :correo AND CONTRASEÑA = :contrasena";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute(['correo' => $correo, 'contrasena' => $contrasena]);
+    $usuario = $stmt->fetch();
+
+    if ($usuario) {
+        $_SESSION['ID_USUARIO'] = $usuario['ID_USUARIO'];
+        $_SESSION['NOMBRE'] = $usuario['NOMBRES'];
+        $_SESSION['ROL'] = $usuario['ROL'];
+
+        if ($usuario['ROL'] === 'admin') {
+            header("Location: src/admin_dashboard.php");
+        } else {
+            header("Location: src/inicio.php");
+        }
+        exit();
+    } else {
+        $error = "Correo o contraseña incorrectos";
+    }
+}
+
+ ?> 
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -8,14 +40,14 @@
    <link rel="stylesheet" href="../css/inicio.css">
 </head>
 <body>
-
 <div class="d-flex">
   <!-- Sidebar -->
  <div id="sidebar" class="text-white p-3">
    <h4 id="titulo">Pet Friend</h4>
     <ul id="barra"class="nav flex-column mb-4"> 
       <li class="nav-item"><a class="nav-link text-white" href="#" onclick="mostrarSeccion('inicio', event)">Inicio</a></li>
-      <li class="nav-item"><a class="nav-link text-white" href="#" onclick="mostrarSeccion('perfil', event)">Perfil</a></li>
+        <li class="nav-item">
+        <a class="nav-link text-white" href="perfil.php">Perfil</a></li>
       <li class="nav-item">
         <a class="nav-link text-white" data-bs-toggle="collapse" href="#submenuAdopciones" role="button" aria-expanded="false" aria-controls="submenuAdopciones">Adopciones</a>
         <div class="collapse ps-3" id="submenuAdopciones">
@@ -26,7 +58,8 @@
       <li class="nav-item"><a class="nav-link text-white" href="#" onclick="mostrarSeccion('configuracion', event)">Configuración</a></li>
       <li class="nav-item"><a class="nav-link text-white" href="#" onclick="mostrarSeccion('privacidad', event)">Privacidad</a></li>
       <li class="nav-item"><a class="nav-link text-white" href="#" onclick="mostrarSeccion('terminos', event)">Términos</a></li>
-      <li class="nav-item"><a class="nav-link text-white" href="#" onclick="mostrarSeccion('cierre', event)">Cerrar sesion</a></li>
+      <a class="nav-link text-white" href="logout.php">Cerrar sesión</a>
+
     </ul>
   </div>
 
