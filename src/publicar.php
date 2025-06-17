@@ -1,44 +1,120 @@
 <?php
-// src/publicar.php
-require_once '../db/config.php';
+session_start();
+require_once __DIR__ . '/../db/config.php';
+
+$id_usuario = $_SESSION['ID_USUARIO'] ?? null;
+if (!$id_usuario) {
+  header("Location: login.php");
+  exit();
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $titulo = $_POST['titulo'];
-    $contenido = $_POST['contenido'];
-    $usuario_id = 1; // Usuario simulado
+  $titulo = trim($_POST['titulo']);
+  $contenido = trim($_POST['contenido']);
+  $nombreArchivo = null;
 
-    // Subir imagen si existe
-    $imagen = null;
-    if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
-        $imagen_nombre = basename($_FILES['imagen']['name']);
-        $ruta_destino = '../uploads/' . $imagen_nombre;
-        move_uploaded_file($_FILES['imagen']['tmp_name'], $ruta_destino);
-        $imagen = $ruta_destino;
-    }
+  if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] === 0) {
+    $nombreArchivo = uniqid() . '_' . basename($_FILES['imagen']['name']);
+    move_uploaded_file($_FILES['imagen']['tmp_name'], __DIR__ . '/../uploads/' . $nombreArchivo);
+  }
 
-    $sql = "INSERT INTO publicaciones (usuario_id, titulo, contenido, imagen) VALUES (?, ?, ?, ?)";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$usuario_id, $titulo, $contenido, $imagen]);
+  $stmt = $pdo->prepare("INSERT INTO publicaciones (usuario_id, titulo, contenido, imagen, fecha) VALUES (:uid, :titulo, :contenido, :imagen, NOW())");
+  $stmt->execute([
+    'uid' => $id_usuario,
+    'titulo' => $titulo,
+    'contenido' => $contenido,
+    'imagen' => $nombreArchivo
+  ]);
 
-    header("Location: Inicio.php");
-    exit;
+  $mensaje_exito = '¡Publicación realizada con éxito!';
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Publicar</title>
-    <link rel="stylesheet" href="../css/publicaciones.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Publicar Adopción</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../css/inicio.css">
+<style>
+  .publicacion-imagen {
+    width: 100%;
+    max-width: 600px;
+    height: auto;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-top: 10px;
+  }
+</style>
 </head>
 <body>
-    <h1>Crear publicación</h1>
-    <form action="publicar.php" method="POST" enctype="multipart/form-data">
-        <input type="text" name="titulo" placeholder="Título" required><br>
-        <textarea name="contenido" placeholder="¿Qué deseas compartir?" required></textarea><br>
-        <input type="file" name="imagen"><br>
-        <button type="submit">Publicar</button>
+<div class="d-flex">
+  <!-- Sidebar -->
+ <div id="sidebar" class="text-white p-3">
+   <h4 id="titulo">Pet Friend</h4>
+    <ul id="barra"class="nav flex-column mb-4"> 
+      <li class="nav-item"><a class="nav-link text-white" href="#" onclick="mostrarSeccion('inicio', event)">Inicio</a></li>
+        <li class="nav-item">
+        <a class="nav-link text-white" href="perfil.php">Perfil</a></li>
+      <li class="nav-item">
+        <a class="nav-link text-white" data-bs-toggle="collapse" href="#submenuAdopciones" role="button" aria-expanded="false" aria-controls="submenuAdopciones">Adopciones</a>
+        <div class="collapse ps-3" id="submenuAdopciones">
+          <a class="nav-link text-white" href="publicar.php" >Publicar</a>
+          <a class="nav-link text-white" href="#" onclick="mostrarSeccion('estado', event)">Estado</a>
+        </div>
+      </li>
+      <li class="nav-item"><a class="nav-link text-white" href="#" onclick="mostrarSeccion('configuracion', event)">Configuración</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="#" onclick="mostrarSeccion('privacidad', event)">Privacidad</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="#" onclick="mostrarSeccion('terminos', event)">Términos</a></li>
+      <a class="nav-link text-white" href="logout.php">Cerrar sesión</a>
+
+    </ul>
+  </div>
+
+  <!-- Contenido principal -->
+  <div id="main-content" class="flex-grow-1">
+    <button class="btn btn-sm btn-secondary m-3" onclick="toggleSidebar()">☰ Menú</button>
+
+  <div class="container py-4">
+    <h2 class="mb-4">Nueva Publicación de Adopción</h2>
+    <?php if (isset($mensaje_exito)): ?>
+      <div class="alert alert-success"> <?= $mensaje_exito ?> </div>
+    <?php endif; ?>
+    <form method="POST" enctype="multipart/form-data">
+      <div class="mb-3">
+        <label for="titulo" class="form-label">Título</label>
+        <input type="text" name="titulo" id="titulo" class="form-control" required>
+      </div>
+      <div class="mb-3">
+        <label for="contenido" class="form-label">Descripción</label>
+        <textarea name="contenido" id="contenido" class="form-control" rows="5" required></textarea>
+      </div>
+      <div class="mb-3">
+        <label for="imagen" class="form-label">Imagen de la mascota</label>
+        <input type="file" name="imagen" id="imagen" class="form-control" accept="image/*">
+      </div>
+      <button type="submit" class="btn btn-primary">Publicar</button>
+      <a href="Inicio.php" class="btn btn-secondary">Cancelar</a>
     </form>
+  </div>
+</div>
+<script>
+  function toggleSidebar() {
+    const sidebar = document.getElementById("sidebar");
+    sidebar.classList.toggle("collapsed");
+  }
+
+  function mostrarSeccion(id, event) {
+    event.preventDefault();
+    document.querySelectorAll('.seccion').forEach(sec => sec.classList.remove('activa'));
+    document.getElementById(id).classList.add('activa');
+  }
+</script>
 </body>
 </html>
+
+
+
+

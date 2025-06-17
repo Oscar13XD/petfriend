@@ -1,34 +1,44 @@
-   * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+ body {
+      background-color: #f0f2f5;
     }
-
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      background-color: #f0f0f0;
-    }
-
-    .container {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .box {
+    .profile-header {
       background-color: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      padding: 30px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #ddd;
     }
-
-    @media (min-width: 768px) {
-      .container {
-        flex-direction: row;
-      }
-
-      .box {
-        flex: 1;
-      }
+    .profile-img {
+      width: 150px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin-right: 20px;
+      border: 4px solid #fff;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    }
+    .bio-box {
+      background: white;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 8px;
+      box-shadow: 0 0 4px rgba(0,0,0,0.1);
+    }
+    .post {
+      background: white;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    .post img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+    .reactions {
+      margin-top: 10px;
+    }
+    .reaction-btn {
+      margin-right: 10px;
     }
