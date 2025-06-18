@@ -3,21 +3,21 @@ session_start();
 require_once __DIR__ . '/../db/config.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $correo = $_POST['correo'];
-    $contrasena = $_POST['contrasena'];
+    $correo = trim($_POST['correo']);
+    $contrasena = trim($_POST['contrasena']);
 
-    $sql = "SELECT * FROM usuarios WHERE CORREO = :correo AND CONTRASEÑA = :contrasena";
+    $sql = "SELECT * FROM usuarios WHERE CORREO = :correo";
     $stmt = $pdo->prepare($sql);
-    $stmt->execute(['correo' => $correo, 'contrasena' => $contrasena]);
+    $stmt->execute(['correo' => $correo]);
     $usuario = $stmt->fetch();
 
-    if ($usuario) {
+    if ($usuario && $usuario['CONTRASEÑA'] === $contrasena) {
         $_SESSION['ID_USUARIO'] = $usuario['ID_USUARIO'];
         $_SESSION['NOMBRE'] = $usuario['NOMBRES'];
         $_SESSION['ROL'] = $usuario['ROL'];
 
         if ($usuario['ROL'] === 'admin') {
-            header("Location: admin_dashboard.php");
+            header("Location: src/admin_dashboard.php?page=inicio");
         } else {
             header("Location: inicio.php");
         }
@@ -26,7 +26,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $error = "Correo o contraseña incorrectos";
     }
 }
+
 ?>
+
 
 
 <!DOCTYPE html>
@@ -66,4 +68,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   </div>
 </body>
 </html>
+
 

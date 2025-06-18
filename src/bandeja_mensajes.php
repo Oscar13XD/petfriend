@@ -15,12 +15,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comentario']) && isse
   exit();
 }
 
-require_once __DIR__ . '/../db/config.php';
-
 $id_usuario = $_SESSION['ID_USUARIO'];
 
 // Obtener todas las publicaciones con datos de usuario
-$stmt = $pdo->query("SELECT p.*, u.NOMBRES, u.APELLIDOS FROM publicaciones p JOIN usuarios u ON p.usuario_id = u.ID_USUARIO ORDER BY p.fecha DESC");
+$stmt = $pdo->query("SELECT p.*, u.NOMBRES, u.APELLIDOS, u.ID_USUARIO as usuario_id FROM publicaciones p JOIN usuarios u ON p.usuario_id = u.ID_USUARIO ORDER BY p.fecha DESC");
 $publicaciones = $stmt->fetchAll();
 
 // Obtener comentarios y me gusta por publicacion
@@ -76,21 +74,24 @@ if (isset($_GET['like']) && is_numeric($_GET['like'])) {
  <div id="sidebar" class="text-white p-3">
    <h4 id="titulo">Pet Friend</h4>
     <ul id="barra"class="nav flex-column mb-4"> 
-      <li class="nav-item"><a class="nav-link text-white" href="#" onclick="mostrarSeccion('inicio', event)">Inicio</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="inicio.php">Inicio</a></li>
         <li class="nav-item">
         <a class="nav-link text-white" href="perfil.php">Perfil</a></li>
       <li class="nav-item">
-        <a class="nav-link text-white" data-bs-toggle="collapse" href="#submenuAdopciones" role="button" aria-expanded="false" aria-controls="submenuAdopciones">Adopciones</a>
-        <div class="collapse ps-3" id="submenuAdopciones">
-          <a class="nav-link text-white" href="publicar.php" >Publicar</a>
-          <a class="nav-link text-white" href="estado_publicaciones.php">Estado</a></div></li>
-          <li class="nav-item"><a class="nav-link text-white" href="bandeja_mensajes.php">Mensajes</a></li>
+       <a class="nav-link text-white" data-bs-toggle="collapse" href="#submenuAdopciones" role="button"
+   aria-expanded="<?= $adopcionActiva ? 'true' : 'false' ?>" aria-controls="submenuAdopciones">
 
+        <?php
+  $paginaActual = basename($_SERVER['PHP_SELF']);
+  $adopcionActiva = in_array($paginaActual, ['publicar.php', 'estado_publicaciones.php']);
+?>
+<div class="collapse ps-3 <?= $adopcionActiva ? 'show' : '' ?>" id="submenuAdopciones">
+  <a class="nav-link text-white <?= $paginaActual == 'publicar.php' ? 'fw-bold' : '' ?>" href="publicar.php">Publicar</a>
+  <a class="nav-link text-white <?= $paginaActual == 'estado_publicaciones.php' ? 'fw-bold' : '' ?>" href="estado_publicaciones.php">Estado</a></div></li>
       <li class="nav-item"><a class="nav-link text-white" href="#" onclick="mostrarSeccion('configuracion', event)">Configuración</a></li>
       <li class="nav-item"><a class="nav-link text-white" href="#" onclick="mostrarSeccion('privacidad', event)">Privacidad</a></li>
       <li class="nav-item"><a class="nav-link text-white" href="#" onclick="mostrarSeccion('terminos', event)">Términos</a></li>
       <a class="nav-link text-white" href="logout.php">Cerrar sesión</a>
-
     </ul>
   </div>
 
@@ -111,26 +112,49 @@ if (isset($_GET['like']) && is_numeric($_GET['like'])) {
           <?php endif; ?>
           <div class="reactions mt-2">
             <a href="?like=<?= $pub['id'] ?>" class="btn btn-outline-primary btn-sm">👍 Me gusta (<?= $likesPorPub[$pub['id']] ?? 0 ?>)</a>
+            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalMensaje<?= $pub['usuario_id'] ?>">✉️ Enviar mensaje</button>
           </div>
           <div class="mt-3">
-  <strong>Comentarios:</strong>
-  <div class="mt-2">
-    <?php if (!empty($comentariosPorPub[$pub['id']])): ?>
-      <?php foreach ($comentariosPorPub[$pub['id']] as $comentario): ?>
-        <p><strong><?= htmlspecialchars($comentario['NOMBRES']) ?>:</strong> <?= htmlspecialchars($comentario['contenido']) ?></p>
-      <?php endforeach; ?>
-    <?php else: ?>
-      <p><em>No hay comentarios aún.</em></p>
-    <?php endif; ?>
-    <form method="POST" class="mt-2">
-      <div class="input-group">
-        <input type="hidden" name="publicacion_id" value="<?= $pub['id'] ?>">
-        <input type="text" name="comentario" class="form-control" placeholder="Escribe un comentario..." required>
-        <button type="submit" class="btn btn-primary">Enviar</button>
-      </div>
-    </form>
-  </div>
-</div>
+            <strong>Comentarios:</strong>
+            <div class="mt-2">
+              <?php if (!empty($comentariosPorPub[$pub['id']])): ?>
+                <?php foreach ($comentariosPorPub[$pub['id']] as $comentario): ?>
+                  <p><strong><?= htmlspecialchars($comentario['NOMBRES']) ?>:</strong> <?= htmlspecialchars($comentario['contenido']) ?></p>
+                <?php endforeach; ?>
+              <?php else: ?>
+                <p><em>No hay comentarios aún.</em></p>
+              <?php endif; ?>
+              <form method="POST" class="mt-2">
+                <div class="input-group">
+                  <input type="hidden" name="publicacion_id" value="<?= $pub['id'] ?>">
+                  <input type="text" name="comentario" class="form-control" placeholder="Escribe un comentario..." required>
+                  <button type="submit" class="btn btn-primary">Enviar</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal de mensaje -->
+        <div class="modal fade" id="modalMensaje<?= $pub['usuario_id'] ?>" tabindex="-1" aria-labelledby="modalMensajeLabel<?= $pub['usuario_id'] ?>" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <form action="enviar_mensaje.php" method="POST">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="modalMensajeLabel<?= $pub['usuario_id'] ?>">Enviar mensaje a <?= htmlspecialchars($pub['NOMBRES']) ?></h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                  <input type="hidden" name="receptor_id" value="<?= $pub['usuario_id'] ?>">
+                  <textarea name="contenido" class="form-control" rows="4" placeholder="Escribe tu mensaje..." required></textarea>
+                </div>
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-primary">Enviar</button>
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
       <?php endforeach; ?>
     </div>
@@ -151,8 +175,5 @@ if (isset($_GET['like']) && is_numeric($_GET['like'])) {
 </script>
 </body>
 </html>
-
-
-
 
 

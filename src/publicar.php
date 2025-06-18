@@ -55,15 +55,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
  <div id="sidebar" class="text-white p-3">
    <h4 id="titulo">Pet Friend</h4>
     <ul id="barra"class="nav flex-column mb-4"> 
-      <li class="nav-item"><a class="nav-link text-white" href="#" onclick="mostrarSeccion('inicio', event)">Inicio</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="inicio.php">Inicio</a></li >
         <li class="nav-item">
         <a class="nav-link text-white" href="perfil.php">Perfil</a></li>
       <li class="nav-item">
-        <a class="nav-link text-white" data-bs-toggle="collapse" href="#submenuAdopciones" role="button" aria-expanded="false" aria-controls="submenuAdopciones">Adopciones</a>
-        <div class="collapse ps-3" id="submenuAdopciones">
-          <a class="nav-link text-white" href="publicar.php" >Publicar</a>
-          <a class="nav-link text-white" href="#" onclick="mostrarSeccion('estado', event)">Estado</a>
-        </div>
+<a class="nav-link text-white" data-bs-toggle="collapse" href="#submenuAdopciones" role="button"
+   aria-expanded="<?= $adopcionActiva ? 'true' : 'false' ?>" aria-controls="submenuAdopciones">
+
+        <?php
+  $paginaActual = basename($_SERVER['PHP_SELF']);
+  $adopcionActiva = in_array($paginaActual, ['publicar.php', 'estado_publicaciones.php']);
+?>
+<div class="collapse ps-3 <?= $adopcionActiva ? 'show' : '' ?>" id="submenuAdopciones">
+  <a class="nav-link text-white <?= $paginaActual == 'publicar.php' ? 'fw-bold' : '' ?>" href="publicar.php">Publicar</a>
+  <a class="nav-link text-white <?= $paginaActual == 'estado_publicaciones.php' ? 'fw-bold' : '' ?>" href="estado_publicaciones.php">Estado</a>
+</div>
+
       </li>
       <li class="nav-item"><a class="nav-link text-white" href="#" onclick="mostrarSeccion('configuracion', event)">Configuración</a></li>
       <li class="nav-item"><a class="nav-link text-white" href="#" onclick="mostrarSeccion('privacidad', event)">Privacidad</a></li>
