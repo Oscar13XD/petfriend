@@ -24,25 +24,7 @@ if (isset($_GET['delete_user'])) {
   $stmt = $pdo->prepare("DELETE FROM usuarios WHERE ID_USUARIO = :id");
   $stmt->execute(['id' => $userId]);
 
-header("Location: admin_dashboard.php?delete_user=ok");
-
-  exit();
-}
-// Eliminar solicitud de adopción
-if (isset($_GET['delete_adoption'])) {
-  $solicitudId = $_GET['delete_adoption'];
-  $stmt = $pdo->prepare("DELETE FROM adopciones WHERE `ID-SOLICITUD` = :id");
-  $stmt->execute(['id' => $solicitudId]);
-  header("Location: admin_dashboard.php?delete_adoption=ok");
-  exit();
-}
-
-
-// Eliminar publicación
-if (isset($_GET['delete_post'])) {
-  $stmt = $pdo->prepare("DELETE FROM publicaciones WHERE id = :id");
-  $stmt->execute(['id' => $_GET['delete_post']]);
-  header("Location: admin_dashboard.php?delete_post=ok");
+  header("Location: admin_dashboard.php?");
   exit();
 }
 
@@ -67,7 +49,7 @@ if (isset($_POST['update_role'])) {
 
 $usuarios = $pdo->query("SELECT * FROM usuarios")->fetchAll();
 $publicaciones = $pdo->query("SELECT p.*, u.NOMBRES, u.APELLIDOS FROM publicaciones p JOIN usuarios u ON p.usuario_id = u.ID_USUARIO ORDER BY fecha DESC LIMIT 10")->fetchAll();
-$adopciones = $pdo->query("SELECT a.`ID-SOLICITUD` AS ID, u.NOMBRES, u.APELLIDOS, m.ESPECIE, e.ESTADO, e.ESTADO AS ID_ESTADO, a.CIUDAD, a.FECHA
+$adopciones = $pdo->query("SELECT a.`ID-SOLICITUD` AS ID, u.NOMBRES, u.APELLIDOS, m.ESPECIE, e.ESTADO, a.CIUDAD, a.FECHA
 FROM adopciones a
 JOIN usuarios u ON a.ID_USUARIO_FK = u.ID_USUARIO
 JOIN mascotas m ON a.ID_MASCOTA_FK = m.ID_MASCOTAS
@@ -75,6 +57,7 @@ JOIN estado e ON a.ID_ESTADO_FK = e.ESTADO
 ORDER BY a.FECHA DESC")->fetchAll();
 $estados = $pdo->query("SELECT ESTADO FROM estado")->fetchAll(PDO::FETCH_COLUMN);
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -104,25 +87,17 @@ $estados = $pdo->query("SELECT ESTADO FROM estado")->fetchAll(PDO::FETCH_COLUMN)
   <div class="flex-grow-1 p-4">
     <h2 class="mb-4">Panel de Administración</h2>
 
-    <!-- Alertas -->
+   <!-- Alertas -->
      <?php if (isset($_GET['delete_user'])): ?>
-  <div class="alert alert-success alert-dismissible fade show" role="alert">
-    ✅ El usuario fue eliminado exitosamente.
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
-  </div>
-<?php endif; ?>
-
+       <div class="alert alert-success alert-dismissible fade show" role="alert">
+         ✅El usuario fue eliminado exitosamente.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+      <?php endif; ?>
 
     <?php if (isset($_GET['rol_actualizado'])): ?>
       <div class="alert alert-success alert-dismissible fade show" role="alert">
         ✅ El rol del usuario se actualizó correctamente.
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
-      </div>
-    <?php endif; ?>
-
-    <?php if (isset($_GET['delete_post'])): ?>
-      <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        ❌ Publicación eliminada correctamente.
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
       </div>
     <?php endif; ?>
@@ -132,14 +107,6 @@ $estados = $pdo->query("SELECT ESTADO FROM estado")->fetchAll(PDO::FETCH_COLUMN)
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
       </div>
     <?php endif; ?>
-
-    <?php if (isset($_GET['delete_adoption']) && $_GET['delete_adoption'] === 'ok'): ?>
-  <div class="alert alert-danger alert-dismissible fade show" role="alert">
-    ❌ Solicitud de adopción eliminada.
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
-  </div>
-<?php endif; ?>
-
 
     <!-- Secciones -->
     <section id="usuarios">
@@ -191,6 +158,7 @@ $estados = $pdo->query("SELECT ESTADO FROM estado")->fetchAll(PDO::FETCH_COLUMN)
       </table>
     </section>
 
+    <!-- Publicaciones -->
     <section id="publicaciones" class="mt-5">
       <h4>Publicaciones Recientes</h4>
       <div class="row">
@@ -201,7 +169,7 @@ $estados = $pdo->query("SELECT ESTADO FROM estado")->fetchAll(PDO::FETCH_COLUMN)
                 <h5 class="card-title"><?= htmlspecialchars($p['titulo']) ?></h5>
                 <h6 class="card-subtitle mb-2 text-muted">Por <?= htmlspecialchars($p['NOMBRES'] . ' ' . $p['APELLIDOS']) ?> | Estado: <?= htmlspecialchars($p['estado']) ?></h6>
                 <p class="card-text"><?= nl2br(htmlspecialchars($p['contenido'])) ?></p>
-                <button onclick="confirmarEliminacion('?delete_post=<?= $p['id'] ?>')" class="btn btn-sm btn-danger">Eliminar</button>
+                
               </div>
             </div>
           </div>
@@ -209,6 +177,7 @@ $estados = $pdo->query("SELECT ESTADO FROM estado")->fetchAll(PDO::FETCH_COLUMN)
       </div>
     </section>
 
+    <!-- Adopciones -->
     <section id="adopciones" class="mt-5">
       <h4>Solicitudes de Adopción</h4>
       <table class="table table-striped">
@@ -249,7 +218,6 @@ $estados = $pdo->query("SELECT ESTADO FROM estado")->fetchAll(PDO::FETCH_COLUMN)
                     <?php endforeach; ?>
                   </select>
                   <button type="submit" name="update_adoption" class="btn btn-sm btn-primary">Actualizar</button>
-                <button onclick="confirmarEliminacion('?delete_post=<?= $p['id'] ?>')" class="btn btn-sm btn-danger">Eliminar</button>
                 </form>
               </td>
             </tr>
@@ -261,8 +229,12 @@ $estados = $pdo->query("SELECT ESTADO FROM estado")->fetchAll(PDO::FETCH_COLUMN)
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  function confirmarEliminacion(url) {
+    if (confirm('¿Estás seguro de que deseas eliminar este registro? Esta acción no se puede deshacer.')) {
+      window.location.href = url;
+    }
+  }
+</script>
 </body>
 </html>
-
-
-

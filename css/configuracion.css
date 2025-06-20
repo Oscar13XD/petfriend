@@ -4,8 +4,16 @@
       padding: 20px;
       margin: 0;
     }
+    #sidebar {
+      min-height: 100vh;
+      transition: all 0.3s ease;
+      width: 300px;
+      background-image: url(../multimedia/imagenes/barra.png);
+      background-size: contain;
+    }
 
-    .container {
+    #barra {
+    background-color: rgba(227, 226, 226, 0.7);
       display: flex;
       flex-wrap: wrap;
       max-width: 1000px;

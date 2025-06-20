@@ -52,9 +52,8 @@ $mensaje_exito = isset($_GET['deleted']) && $_GET['deleted'] == 1;
 <div class="collapse ps-3 <?= $adopcionActiva ? 'show' : '' ?>" id="submenuAdopciones">
   <a class="nav-link text-white <?= $paginaActual == 'publicar.php' ? 'fw-bold' : '' ?>" href="publicar.php">Publicar</a>
   <a class="nav-link text-white <?= $paginaActual == 'estado_publicaciones.php' ? 'fw-bold' : '' ?>" href="estado_publicaciones.php">Estado</a></div></li>
-      <li class="nav-item"><a class="nav-link text-white" href="#" onclick="mostrarSeccion('configuracion', event)">Configuración</a></li>
-      <li class="nav-item"><a class="nav-link text-white" href="#" onclick="mostrarSeccion('privacidad', event)">Privacidad</a></li>
-      <li class="nav-item"><a class="nav-link text-white" href="#" onclick="mostrarSeccion('terminos', event)">Términos</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="configuracion.php">Configuración</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="acerca_terminos.php" >Términos</a></li>
       <a class="nav-link text-white" href="logout.php">Cerrar sesión</a>
 
     </ul>

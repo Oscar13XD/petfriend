@@ -2,17 +2,37 @@
 session_start();
 require_once __DIR__ . '/../db/config.php';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['comentario']) && isset($_POST['publicacion_id'])) {
-  $comentario = trim($_POST['comentario']);
-  $publicacion_id = (int)$_POST['publicacion_id'];
-  $stmt = $pdo->prepare("INSERT INTO comentarios (usuario_id, publicacion_id, contenido, fecha) VALUES (:uid, :pid, :contenido, NOW())");
-  $stmt->execute([
-    'uid' => $_SESSION['ID_USUARIO'],
-    'pid' => $publicacion_id,
-    'contenido' => $comentario
-  ]);
-  header("Location: inicio.php");
-  exit();
+$mensajeEnviado = false;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  if (isset($_POST['comentario']) && isset($_POST['publicacion_id'])) {
+    $comentario = trim($_POST['comentario']);
+    $publicacion_id = (int)$_POST['publicacion_id'];
+    $stmt = $pdo->prepare("INSERT INTO comentarios (usuario_id, publicacion_id, contenido, fecha) VALUES (:uid, :pid, :contenido, NOW())");
+    $stmt->execute([
+      'uid' => $_SESSION['ID_USUARIO'],
+      'pid' => $publicacion_id,
+      'contenido' => $comentario
+    ]);
+    header("Location: bandeja_mensajes.php");
+    exit();
+  }
+
+  if (isset($_POST['receptor_id'], $_POST['contenido'])) {
+    $emisor_id = $_SESSION['ID_USUARIO'];
+    $receptor_id = (int) $_POST['receptor_id'];
+    $contenido = trim($_POST['contenido']);
+
+    if ($contenido !== '') {
+      $stmt = $pdo->prepare("INSERT INTO mensajes (emisor_id, receptor_id, contenido) VALUES (:emisor, :receptor, :contenido)");
+      $stmt->execute([
+        'emisor' => $emisor_id,
+        'receptor' => $receptor_id,
+        'contenido' => $contenido
+      ]);
+      $mensajeEnviado = true;
+    }
+  }
 }
 
 $id_usuario = $_SESSION['ID_USUARIO'];
@@ -21,7 +41,7 @@ $id_usuario = $_SESSION['ID_USUARIO'];
 $stmt = $pdo->query("SELECT p.*, u.NOMBRES, u.APELLIDOS, u.ID_USUARIO as usuario_id FROM publicaciones p JOIN usuarios u ON p.usuario_id = u.ID_USUARIO ORDER BY p.fecha DESC");
 $publicaciones = $stmt->fetchAll();
 
-// Obtener comentarios y me gusta por publicacion
+// Obtener comentarios y me gusta por publicación
 $comentariosPorPub = [];
 $likesPorPub = [];
 $stmtComentarios = $pdo->prepare("SELECT c.*, u.NOMBRES FROM comentarios c JOIN usuarios u ON c.usuario_id = u.ID_USUARIO WHERE c.publicacion_id = :pid ORDER BY c.fecha ASC");
@@ -30,7 +50,6 @@ $stmtLikes = $pdo->prepare("SELECT COUNT(*) FROM reacciones WHERE publicacion_id
 foreach ($publicaciones as $pub) {
   $stmtComentarios->execute(['pid' => $pub['id']]);
   $comentariosPorPub[$pub['id']] = $stmtComentarios->fetchAll();
-
   $stmtLikes->execute(['pid' => $pub['id']]);
   $likesPorPub[$pub['id']] = $stmtLikes->fetchColumn();
 }
@@ -44,17 +63,21 @@ if (isset($_GET['like']) && is_numeric($_GET['like'])) {
     $pdo->prepare("INSERT INTO reacciones (publicacion_id, usuario_id, fecha) VALUES (:pid, :uid, NOW())")
         ->execute(['pid' => $like_id, 'uid' => $id_usuario]);
   }
-  header("Location: inicio.php");
+  header("Location: bandeja_mensajes.php");
   exit();
 }
+
+// Obtener mensajes recibidos
+$stmtMensajes = $pdo->prepare("SELECT m.*, u.NOMBRES, u.APELLIDOS FROM mensajes m JOIN usuarios u ON m.emisor_id = u.ID_USUARIO WHERE m.receptor_id = :id ORDER BY m.fecha DESC");
+$stmtMensajes->execute(['id' => $id_usuario]);
+$mensajes = $stmtMensajes->fetchAll();
 ?>
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Inicio - Pet Friend</title>
+  <title>Bandeja de Mensajes</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="../css/inicio.css">
   <style>
@@ -66,97 +89,110 @@ if (isset($_GET['like']) && is_numeric($_GET['like'])) {
       border-radius: 8px;
       margin-top: 10px;
     }
+    .mensaje {
+      background: #fff;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
 <div class="d-flex">
-  <!-- Sidebar -->
- <div id="sidebar" class="text-white p-3">
-   <h4 id="titulo">Pet Friend</h4>
-    <ul id="barra"class="nav flex-column mb-4"> 
-      <li class="nav-item"><a class="nav-link text-white" href="inicio.php">Inicio</a></li>
-        <li class="nav-item">
-        <a class="nav-link text-white" href="perfil.php">Perfil</a></li>
-      <li class="nav-item">
-       <a class="nav-link text-white" data-bs-toggle="collapse" href="#submenuAdopciones" role="button"
-   aria-expanded="<?= $adopcionActiva ? 'true' : 'false' ?>" aria-controls="submenuAdopciones">
-
-        <?php
-  $paginaActual = basename($_SERVER['PHP_SELF']);
-  $adopcionActiva = in_array($paginaActual, ['publicar.php', 'estado_publicaciones.php']);
+  <div id="sidebar" class="text-white p-3">
+    <h4 id="titulo">Pet Friend</h4>
+    <?php
+// Mensajes nuevos para ícono en el menú
+$stmtNuevos = $pdo->prepare("SELECT COUNT(*) FROM mensajes WHERE receptor_id = :id AND fecha >= (NOW() - INTERVAL 5 MINUTE)");
+$stmtNuevos->execute(['id' => $id_usuario]);
+$nuevos = $stmtNuevos->fetchColumn();
 ?>
-<div class="collapse ps-3 <?= $adopcionActiva ? 'show' : '' ?>" id="submenuAdopciones">
-  <a class="nav-link text-white <?= $paginaActual == 'publicar.php' ? 'fw-bold' : '' ?>" href="publicar.php">Publicar</a>
-  <a class="nav-link text-white <?= $paginaActual == 'estado_publicaciones.php' ? 'fw-bold' : '' ?>" href="estado_publicaciones.php">Estado</a></div></li>
+<ul id="barra" class="nav flex-column mb-4">
+      <li class="nav-item"><a class="nav-link text-white" href="inicio.php">Inicio</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="perfil.php">Perfil</a></li>
+<li class="nav-item">
+  <a class="nav-link text-white d-flex justify-content-between align-items-center <?= basename($_SERVER['PHP_SELF']) == 'bandeja_mensajes.php' ? 'fw-bold' : '' ?>" href="bandeja_mensajes.php">
+    Mensajes
+    <?php if (!empty($nuevos) && $nuevos > 0): ?>
+      <span class="badge bg-danger ms-2">🔔 <?= $nuevos ?></span>
+    <?php endif; ?>
+  </a>
+</li>
+      <li class="nav-item">
+        <a class="nav-link text-white" data-bs-toggle="collapse" href="#submenuAdopciones" role="button"
+           aria-expanded="<?= in_array(basename($_SERVER['PHP_SELF']), ['publicar.php', 'estado_publicaciones.php']) ? 'true' : 'false' ?>"
+           aria-controls="submenuAdopciones">Adopciones</a>
+        <div class="collapse ps-3 <?= in_array(basename($_SERVER['PHP_SELF']), ['publicar.php', 'estado_publicaciones.php']) ? 'show' : '' ?>" id="submenuAdopciones">
+          <a class="nav-link text-white <?= basename($_SERVER['PHP_SELF']) == 'publicar.php' ? 'fw-bold' : '' ?>" href="publicar.php">Publicar</a>
+          <a class="nav-link text-white <?= basename($_SERVER['PHP_SELF']) == 'estado_publicaciones.php' ? 'fw-bold' : '' ?>" href="estado_publicaciones.php">Estado</a>
+        </div>
+      </li>
       <li class="nav-item"><a class="nav-link text-white" href="#" onclick="mostrarSeccion('configuracion', event)">Configuración</a></li>
-      <li class="nav-item"><a class="nav-link text-white" href="#" onclick="mostrarSeccion('privacidad', event)">Privacidad</a></li>
-      <li class="nav-item"><a class="nav-link text-white" href="#" onclick="mostrarSeccion('terminos', event)">Términos</a></li>
-      <a class="nav-link text-white" href="logout.php">Cerrar sesión</a>
+      <li class="nav-item"><a class="nav-link text-white" href="acerca_terminos.php" >Términos</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="logout.php">Cerrar sesión</a></li>
     </ul>
   </div>
 
-  <!-- Contenido principal -->
   <div id="main-content" class="flex-grow-1">
     <button class="btn btn-sm btn-secondary m-3" onclick="toggleSidebar()">☰ Menú</button>
-  <div id="main-content" class="flex-grow-1">
     <div class="container py-4">
-      <h3 class="mb-4">Publicaciones recientes</h3>
-      <?php foreach ($publicaciones as $pub): ?>
-        <div class="post mb-4">
-          <div class="d-flex justify-content-between">
-            <h5><?= htmlspecialchars($pub['titulo']) ?> <small class="text-muted">- <?= htmlspecialchars($pub['NOMBRES']) . ' ' . htmlspecialchars($pub['APELLIDOS']) ?></small></h5>
+      <h3 class="mb-4">📥 Mis Mensajes Recibidos</h3>
+      <?php if ($mensajeEnviado): ?>
+        <div class="alert alert-success">✅ Mensaje enviado correctamente.</div>
+      <?php endif; ?>
+      <div class="text-end mb-3">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalRedactar">✍️ Redactar mensaje</button>
+      </div>
+      <?php if (count($mensajes) === 0): ?>
+        <p>No tienes mensajes en tu bandeja de entrada.</p>
+      <?php else: ?>
+        <?php foreach ($mensajes as $msg): ?>
+          <div class="mensaje">
+            <strong>De:</strong> <?= htmlspecialchars($msg['NOMBRES'] . ' ' . $msg['APELLIDOS']) ?><br>
+            <strong>Mensaje:</strong> <?= nl2br(htmlspecialchars($msg['contenido'])) ?><br>
+            <small><em>Enviado el <?= $msg['fecha'] ?></em></small>
           </div>
-          <p><?= nl2br(htmlspecialchars($pub['contenido'])) ?></p>
-          <?php if (!empty($pub['imagen'])): ?>
-            <img src="../uploads/<?= htmlspecialchars($pub['imagen']) ?>" alt="Imagen publicación">
-          <?php endif; ?>
-          <div class="reactions mt-2">
-            <a href="?like=<?= $pub['id'] ?>" class="btn btn-outline-primary btn-sm">👍 Me gusta (<?= $likesPorPub[$pub['id']] ?? 0 ?>)</a>
-            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalMensaje<?= $pub['usuario_id'] ?>">✉️ Enviar mensaje</button>
-          </div>
-          <div class="mt-3">
-            <strong>Comentarios:</strong>
-            <div class="mt-2">
-              <?php if (!empty($comentariosPorPub[$pub['id']])): ?>
-                <?php foreach ($comentariosPorPub[$pub['id']] as $comentario): ?>
-                  <p><strong><?= htmlspecialchars($comentario['NOMBRES']) ?>:</strong> <?= htmlspecialchars($comentario['contenido']) ?></p>
-                <?php endforeach; ?>
-              <?php else: ?>
-                <p><em>No hay comentarios aún.</em></p>
-              <?php endif; ?>
-              <form method="POST" class="mt-2">
-                <div class="input-group">
-                  <input type="hidden" name="publicacion_id" value="<?= $pub['id'] ?>">
-                  <input type="text" name="comentario" class="form-control" placeholder="Escribe un comentario..." required>
-                  <button type="submit" class="btn btn-primary">Enviar</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
+        <?php endforeach; ?>
+      <?php endif; ?>
+    </div>
+  </div>
+</div>
 
-        <!-- Modal de mensaje -->
-        <div class="modal fade" id="modalMensaje<?= $pub['usuario_id'] ?>" tabindex="-1" aria-labelledby="modalMensajeLabel<?= $pub['usuario_id'] ?>" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <form action="enviar_mensaje.php" method="POST">
-                <div class="modal-header">
-                  <h5 class="modal-title" id="modalMensajeLabel<?= $pub['usuario_id'] ?>">Enviar mensaje a <?= htmlspecialchars($pub['NOMBRES']) ?></h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body">
-                  <input type="hidden" name="receptor_id" value="<?= $pub['usuario_id'] ?>">
-                  <textarea name="contenido" class="form-control" rows="4" placeholder="Escribe tu mensaje..." required></textarea>
-                </div>
-                <div class="modal-footer">
-                  <button type="submit" class="btn btn-primary">Enviar</button>
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                </div>
-              </form>
-            </div>
+<!-- Modal Redactar Mensaje -->
+<div class="modal fade" id="modalRedactar" tabindex="-1" aria-labelledby="modalRedactarLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form action="bandeja_mensajes.php" method="POST">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalRedactarLabel">Nuevo mensaje</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="receptor_id" class="form-label">Para:</label>
+            <select name="receptor_id" class="form-select" required>
+              <option value="" selected disabled>Selecciona un usuario</option>
+              <?php
+              $usuariosStmt = $pdo->prepare("SELECT ID_USUARIO, NOMBRES, APELLIDOS FROM usuarios WHERE ID_USUARIO != ?");
+              $usuariosStmt->execute([$id_usuario]);
+              while ($usuario = $usuariosStmt->fetch()): ?>
+                <option value="<?= $usuario['ID_USUARIO'] ?>">
+                  <?= htmlspecialchars($usuario['NOMBRES'] . ' ' . $usuario['APELLIDOS']) ?>
+                </option>
+              <?php endwhile; ?>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="contenido" class="form-label">Mensaje:</label>
+            <textarea name="contenido" class="form-control" rows="4" placeholder="Escribe tu mensaje..." required></textarea>
           </div>
         </div>
-      <?php endforeach; ?>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Enviar</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
@@ -173,7 +209,56 @@ if (isset($_GET['like']) && is_numeric($_GET['like'])) {
     document.getElementById(id).classList.add('activa');
   }
 </script>
+<!-- Modal Redactar Mensaje -->
+<div class="modal fade" id="modalRedactar" tabindex="-1" aria-labelledby="modalRedactarLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form action="bandeja_mensajes.php" method="POST">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalRedactarLabel">Nuevo mensaje</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="receptor_id" class="form-label">Para:</label>
+            <select name="receptor_id" class="form-select" required>
+              <option value="" selected disabled>Selecciona un usuario</option>
+              <?php
+              $usuariosStmt = $pdo->prepare("SELECT ID_USUARIO, NOMBRES, APELLIDOS FROM usuarios WHERE ID_USUARIO != ?");
+              $usuariosStmt->execute([$id_usuario]);
+              while ($usuario = $usuariosStmt->fetch()): ?>
+                <option value="<?= $usuario['ID_USUARIO'] ?>">
+                  <?= htmlspecialchars($usuario['NOMBRES'] . ' ' . $usuario['APELLIDOS']) ?>
+                </option>
+              <?php endwhile; ?>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="contenido" class="form-label">Mensaje:</label>
+            <textarea name="contenido" class="form-control" rows="4" placeholder="Escribe tu mensaje..." required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Enviar</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Ocultar automáticamente la notificación después de 5 segundos
+  setTimeout(() => {
+    const alerta = document.querySelector('.notificacion-nuevos');
+    if (alerta) alerta.remove();
+  }, 5000);
+</script>
+
 </body>
 </html>
+
+
+
 
 

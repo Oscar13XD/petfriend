@@ -79,23 +79,22 @@ foreach ($publicaciones as $pub) {
 <body>
 <div class="d-flex">
   <!-- Sidebar -->
-  <div id="sidebar" class="text-white p-3">
-    <h4 id="titulo">Pet Friend</h4>
-    <ul id="barra" class="nav flex-column mb-4">
-      <li class="nav-item"><a class="nav-link text-white" href="inicio.php">Inicio</a></li>
-      <li class="nav-item"><a class="nav-link text-white" href="perfil.php">Perfil</a></li>
-      <li class="nav-item"><a class="nav-link text-white" href="bandeja_mensajes.php">Mensajes</a></li>
+ <div id="sidebar" class="text-white p-3">
+   <h4 id="titulo">Pet Friend</h4>
+    <ul id="barra"class="nav flex-column mb-4"> 
+      <li class="nav-item"><a class="nav-link text-white" href="#" onclick="mostrarSeccion('inicio', event)">Inicio</a></li>
+        <li class="nav-item">
+        <a class="nav-link text-white" href="perfil.php">Perfil</a></li>
       <li class="nav-item">
-        <a class="nav-link text-white" data-bs-toggle="collapse" href="#submenuAdopciones">Adopciones</a>
+        <a class="nav-link text-white" data-bs-toggle="collapse" href="#submenuAdopciones" role="button" aria-expanded="false" aria-controls="submenuAdopciones">Adopciones</a>
         <div class="collapse ps-3" id="submenuAdopciones">
-          <a class="nav-link text-white" href="publicar.php">Publicar</a>
-          <a class="nav-link text-white" href="estado_publicaciones.php">Estado</a>
-        </div>
-      </li>
-      <li class="nav-item"><a class="nav-link text-white" href="#">Configuración</a></li>
-      <li class="nav-item"><a class="nav-link text-white" href="#">Privacidad</a></li>
-      <li class="nav-item"><a class="nav-link text-white" href="#">Términos</a></li>
-      <li class="nav-item"><a class="nav-link text-white" href="logout.php">Cerrar sesión</a></li>
+          <a class="nav-link text-white" href="publicar.php" >Publicar</a>
+          <a class="nav-link text-white" href="estado_publicaciones.php">Estado</a></div></li>
+          <li class="nav-item"><a class="nav-link text-white" href="bandeja_mensajes.php">Mensajes</a></li>
+
+      <li class="nav-item"><a class="nav-link text-white" href="configuracion.php">Configuración</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="acerca_terminos.php" >Términos</a></li>
+      <a class="nav-link text-white" href="logout.php">Cerrar sesión</a>
     </ul>
   </div>
 

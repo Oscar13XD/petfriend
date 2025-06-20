@@ -86,11 +86,9 @@ if (isset($_GET['like']) && is_numeric($_GET['like'])) {
           <a class="nav-link text-white" href="estado_publicaciones.php">Estado</a></div></li>
           <li class="nav-item"><a class="nav-link text-white" href="bandeja_mensajes.php">Mensajes</a></li>
 
-      <li class="nav-item"><a class="nav-link text-white" href="#" onclick="mostrarSeccion('configuracion', event)">Configuración</a></li>
-      <li class="nav-item"><a class="nav-link text-white" href="#" onclick="mostrarSeccion('privacidad', event)">Privacidad</a></li>
-      <li class="nav-item"><a class="nav-link text-white" href="#" onclick="mostrarSeccion('terminos', event)">Términos</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="configuracion.php">Configuración</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="acerca_terminos.php" >Términos</a></li>
       <a class="nav-link text-white" href="logout.php">Cerrar sesión</a>
-
     </ul>
   </div>
 

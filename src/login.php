@@ -1,5 +1,16 @@
 <?php
 session_start();
+
+if (isset($_SESSION['ROL'])) {
+    if ($_SESSION['ROL'] === 'admin') {
+        header("Location: /petfriend2/src/admin_dashboard.php");
+        exit();
+    } else {
+        header("Location: inicio.php");
+        exit();
+    }
+}
+
 require_once __DIR__ . '/../db/config.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -17,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['ROL'] = $usuario['ROL'];
 
         if ($usuario['ROL'] === 'admin') {
-            header("Location: src/admin_dashboard.php?page=inicio");
+            header("Location: /petfriend2/src/admin_dashboard.php");
         } else {
             header("Location: inicio.php");
         }
