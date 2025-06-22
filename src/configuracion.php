@@ -60,7 +60,7 @@ $usuario = $stmt->fetch();
  <div id="sidebar" class="text-white p-3">
    <h4 id="titulo">Pet Friend</h4>
     <ul id="barra"class="nav flex-column mb-4"> 
-      <li class="nav-item"><a class="nav-link text-white" href="#" onclick="mostrarSeccion('inicio', event)">Inicio</a></li>
+      <li class="nav-item"><a class="nav-link text-white" href="Inicio.php">Inicio</a></li>
         <li class="nav-item">
         <a class="nav-link text-white" href="perfil.php">Perfil</a></li>
       <li class="nav-item">
