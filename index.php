@@ -17,11 +17,11 @@
         case 'register':
             include 'src/registro.php';
             break;
-    
+
         case 'login':
             include 'src/login.php';
             break;
-    
+
 
         default:
             include 'src/login.php';
