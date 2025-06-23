@@ -44,7 +44,7 @@ if (isset($_GET['like']) && is_numeric($_GET['like'])) {
   $stmtCheck->execute(['pid' => $like_id, 'uid' => $id_usuario]);
   if ($stmtCheck->rowCount() === 0) {
     $pdo->prepare("INSERT INTO reacciones (publicacion_id, usuario_id, fecha) VALUES (:pid, :uid, NOW())")
-        ->execute(['pid' => $like_id, 'uid' => $id_usuario]);
+      ->execute(['pid' => $like_id, 'uid' => $id_usuario]);
   }
   header("Location: inicio.php");
   exit();
@@ -53,6 +53,7 @@ if (isset($_GET['like']) && is_numeric($_GET['like'])) {
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -70,87 +71,87 @@ if (isset($_GET['like']) && is_numeric($_GET['like'])) {
     }
   </style>
 </head>
+
 <body>
-<div class="d-flex">
-  <!-- Sidebar -->
- <div id="sidebar" class="text-white p-3">
-   <h4 id="titulo">Pet Friend</h4>
-    <ul id="barra"class="nav flex-column mb-4"> 
-      <li class="nav-item"><a class="nav-link text-white" href="#" onclick="mostrarSeccion('inicio', event)">Inicio</a></li>
+  <div class="d-flex">
+    <!-- Sidebar -->
+    <div id="sidebar" class="text-white p-3">
+      <h4 id="titulo">Pet Friend</h4>
+      <ul id="barra" class="nav flex-column mb-4">
+        <li class="nav-item"><a class="nav-link text-white" href="#" onclick="mostrarSeccion('inicio', event)">Inicio</a></li>
         <li class="nav-item">
-        <a class="nav-link text-white" href="perfil.php">Perfil</a></li>
-      <li class="nav-item">
-        <a class="nav-link text-white" data-bs-toggle="collapse" href="#submenuAdopciones" role="button" aria-expanded="false" aria-controls="submenuAdopciones">Adopciones</a>
-        <div class="collapse ps-3" id="submenuAdopciones">
-          <a class="nav-link text-white" href="publicar.php" >Publicar</a>
-          <a class="nav-link text-white" href="estado_publicaciones.php">Estado</a></div></li>
-          <li class="nav-item"><a class="nav-link text-white" href="bandeja_mensajes.php">Mensajes</a></li>
-
-      <li class="nav-item"><a class="nav-link text-white" href="configuracion.php">Configuración</a></li>
-      <li class="nav-item"><a class="nav-link text-white" href="acerca_terminos.php" >Términos</a></li>
-      <a class="nav-link text-white" href="logout.php">Cerrar sesión</a>
-    </ul>
-  </div>
-
-  <!-- Contenido principal -->
-  <div id="main-content" class="flex-grow-1">
-    <button class="btn btn-sm btn-secondary m-3" onclick="toggleSidebar()">☰ Menú</button>
-  <div id="main-content" class="flex-grow-1">
-    <div class="container py-4">
-      <h3 class="mb-4">Publicaciones recientes</h3>
-      <?php foreach ($publicaciones as $pub): ?>
-        <div class="post mb-4">
-          <div class="d-flex justify-content-between">
-            <h5><?= htmlspecialchars($pub['titulo']) ?> <small class="text-muted">- <?= htmlspecialchars($pub['NOMBRES']) . ' ' . htmlspecialchars($pub['APELLIDOS']) ?></small></h5>
+          <a class="nav-link text-white" href="perfil.php">Perfil</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-white" data-bs-toggle="collapse" href="#submenuAdopciones" role="button" aria-expanded="false" aria-controls="submenuAdopciones">Adopciones</a>
+          <div class="collapse ps-3" id="submenuAdopciones">
+            <a class="nav-link text-white" href="publicar.php">Publicar</a>
+            <a class="nav-link text-white" href="estado_publicaciones.php">Estado</a>
           </div>
-          <p><?= nl2br(htmlspecialchars($pub['contenido'])) ?></p>
-          <?php if (!empty($pub['imagen'])): ?>
-            <img src="../uploads/<?= htmlspecialchars($pub['imagen']) ?>" alt="Imagen publicación">
-          <?php endif; ?>
-          <div class="reactions mt-2">
-            <a href="?like=<?= $pub['id'] ?>" class="btn btn-outline-primary btn-sm">👍 Me gusta (<?= $likesPorPub[$pub['id']] ?? 0 ?>)</a>
-          </div>
-          <div class="mt-3">
-  <strong>Comentarios:</strong>
-  <div class="mt-2">
-    <?php if (!empty($comentariosPorPub[$pub['id']])): ?>
-      <?php foreach ($comentariosPorPub[$pub['id']] as $comentario): ?>
-        <p><strong><?= htmlspecialchars($comentario['NOMBRES']) ?>:</strong> <?= htmlspecialchars($comentario['contenido']) ?></p>
-      <?php endforeach; ?>
-    <?php else: ?>
-      <p><em>No hay comentarios aún.</em></p>
-    <?php endif; ?>
-    <form method="POST" class="mt-2">
-      <div class="input-group">
-        <input type="hidden" name="publicacion_id" value="<?= $pub['id'] ?>">
-        <input type="text" name="comentario" class="form-control" placeholder="Escribe un comentario..." required>
-        <button type="submit" class="btn btn-primary">Enviar</button>
-      </div>
-    </form>
-  </div>
-</div>
-        </div>
-      <?php endforeach; ?>
+        </li>
+        <li class="nav-item"><a class="nav-link text-white" href="bandeja_mensajes.php">Mensajes</a></li>
+
+        <li class="nav-item"><a class="nav-link text-white" href="configuracion.php">Configuración</a></li>
+        <li class="nav-item"><a class="nav-link text-white" href="acerca_terminos.php">Términos</a></li>
+        <a class="nav-link text-white" href="logout.php">Cerrar sesión</a>
+      </ul>
     </div>
-  </div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-  function toggleSidebar() {
-    const sidebar = document.getElementById("sidebar");
-    sidebar.classList.toggle("collapsed");
-  }
 
-  function mostrarSeccion(id, event) {
-    event.preventDefault();
-    document.querySelectorAll('.seccion').forEach(sec => sec.classList.remove('activa'));
-    document.getElementById(id).classList.add('activa');
-  }
-</script>
+    <!-- Contenido principal -->
+    <div id="main-content" class="flex-grow-1">
+      <button class="btn btn-sm btn-secondary m-3" onclick="toggleSidebar()">☰ Menú</button>
+      <div id="main-content" class="flex-grow-1">
+        <div class="container py-4">
+          <h3 class="mb-4">Publicaciones recientes</h3>
+          <?php foreach ($publicaciones as $pub): ?>
+            <div class="post mb-4">
+              <div class="d-flex justify-content-between">
+                <h5><?= htmlspecialchars($pub['titulo']) ?> <small class="text-muted">- <?= htmlspecialchars($pub['NOMBRES']) . ' ' . htmlspecialchars($pub['APELLIDOS']) ?></small></h5>
+              </div>
+              <p><?= nl2br(htmlspecialchars($pub['contenido'])) ?></p>
+              <?php if (!empty($pub['imagen'])): ?>
+                <img src="../uploads/<?= htmlspecialchars($pub['imagen']) ?>" alt="Imagen publicación">
+              <?php endif; ?>
+              <div class="reactions mt-2">
+                <a href="?like=<?= $pub['id'] ?>" class="btn btn-outline-primary btn-sm">👍 Me gusta (<?= $likesPorPub[$pub['id']] ?? 0 ?>)</a>
+              </div>
+              <div class="mt-3">
+                <strong>Comentarios:</strong>
+                <div class="mt-2">
+                  <?php if (!empty($comentariosPorPub[$pub['id']])): ?>
+                    <?php foreach ($comentariosPorPub[$pub['id']] as $comentario): ?>
+                      <p><strong><?= htmlspecialchars($comentario['NOMBRES']) ?>:</strong> <?= htmlspecialchars($comentario['contenido']) ?></p>
+                    <?php endforeach; ?>
+                  <?php else: ?>
+                    <p><em>No hay comentarios aún.</em></p>
+                  <?php endif; ?>
+                  <form method="POST" class="mt-2">
+                    <div class="input-group">
+                      <input type="hidden" name="publicacion_id" value="<?= $pub['id'] ?>">
+                      <input type="text" name="comentario" class="form-control" placeholder="Escribe un comentario..." required>
+                      <button type="submit" class="btn btn-primary">Enviar</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          <?php endforeach; ?>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        sidebar.classList.toggle("collapsed");
+      }
+
+      function mostrarSeccion(id, event) {
+        event.preventDefault();
+        document.querySelectorAll('.seccion').forEach(sec => sec.classList.remove('activa'));
+        document.getElementById(id).classList.add('activa');
+      }
+    </script>
 </body>
+
 </html>
-
-
-
-
-

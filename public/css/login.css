@@ -1,7 +1,6 @@
 body {
     font-family: 'Arial', sans-serif;
-    background-image:url(../multimedia/imagenes/FONDO\ \(1\).png); 
-
+    background-image: url(../img/FONDO\ \(1\).png);
     margin: 0;
     padding: 0;
     display: flex;
@@ -10,21 +9,24 @@ body {
     height: 100vh;
     color: #030303;
 }
+
 /* Logotipo*/
-.logo{
-    border: 2px ;
+.logo {
+    border: 2px;
     border-radius: 10px;
     margin: 0px;
     text-align: center;
 }
+
 .login-container {
     width: 350px;
     background-color: rgba(188, 184, 184, 0.7);
     padding: 30px;
     border-radius: 10px;
-    box-shadow:0 10px 30px rgba(18, 18, 18, 0.2);
-    text-align:center
+    box-shadow: 0 10px 30px rgba(18, 18, 18, 0.2);
+    text-align: center
 }
+
 /* Título del formulario */
 .login-container h2 {
     font-size: 24px;
@@ -101,6 +103,7 @@ body {
 .login-container a:hover {
     text-decoration: underline;
 }
+
 a {
     color: #d5dae0;
     text-decoration: underline;

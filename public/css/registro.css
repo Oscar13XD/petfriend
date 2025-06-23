@@ -1,6 +1,6 @@
 /*Estilos registro*/
 body {
-    background-image: url(../multimedia/imagenes/FOND_REGIS.png);
+    background-image: url(../img/FOND_REGIS.png);
     margin: 200pc;
     font-family: 'Arial', sans-serif;
     margin: 0;
@@ -11,26 +11,30 @@ body {
     height: 100vh;
     color: #080808;
 }
+
 .card-body {
     width: 480px;
     background-color: rgba(227, 226, 226, 0.7);
     padding: 30px;
     border-radius: 10px;
-    box-shadow:0 10px 30px rgba(0, 0, 0, 0.2);
-    text-align:left
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    text-align: left
 }
 
 .carrusel-imagenes {
     display: flex;
     transition: transform 0.5s ease;
 }
+
 .carrusel-imagenes img {
     width: 100%;
     max-height: 20px;
     object-fit: cover;
 }
+
 /* Botones de navegación */
-.prev, .next {
+.prev,
+.next {
     position: absolute;
     top: 50%;
     padding: 10px;
@@ -40,5 +44,11 @@ body {
     cursor: pointer;
     transform: translateY(-50%);
 }
-.prev { left: 10px; }
-.next { right: 10px; }
+
+.prev {
+    left: 10px;
+}
+
+.next {
+    right: 10px;
+}

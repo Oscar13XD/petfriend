@@ -2,40 +2,40 @@
 session_start();
 
 if (isset($_SESSION['ROL'])) {
-    if ($_SESSION['ROL'] === 'admin') {
-        header("Location: /petfriend2/src/admin_dashboard.php");
-        exit();
-    } else {
-        header("Location: inicio.php");
-        exit();
-    }
+  if ($_SESSION['ROL'] === 'admin') {
+    header("Location: /petfriend2/src/admin_dashboard.php");
+    exit();
+  } else {
+    header("Location: inicio.php");
+    exit();
+  }
 }
 
 require_once __DIR__ . '/../db/config.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $correo = trim($_POST['correo']);
-    $contrasena = trim($_POST['contrasena']);
+  $correo = trim($_POST['correo']);
+  $contrasena = trim($_POST['contrasena']);
 
-    $sql = "SELECT * FROM usuarios WHERE CORREO = :correo";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute(['correo' => $correo]);
-    $usuario = $stmt->fetch();
+  $sql = "SELECT * FROM usuarios WHERE CORREO = :correo";
+  $stmt = $pdo->prepare($sql);
+  $stmt->execute(['correo' => $correo]);
+  $usuario = $stmt->fetch();
 
-    if ($usuario && $usuario['CONTRASEÑA'] === $contrasena) {
-        $_SESSION['ID_USUARIO'] = $usuario['ID_USUARIO'];
-        $_SESSION['NOMBRE'] = $usuario['NOMBRES'];
-        $_SESSION['ROL'] = $usuario['ROL'];
+  if ($usuario && $usuario['CONTRASEÑA'] === $contrasena) {
+    $_SESSION['ID_USUARIO'] = $usuario['ID_USUARIO'];
+    $_SESSION['NOMBRE'] = $usuario['NOMBRES'];
+    $_SESSION['ROL'] = $usuario['ROL'];
 
-        if ($usuario['ROL'] === 'admin') {
-            header("Location: /petfriend2/src/admin_dashboard.php");
-        } else {
-            header("Location: inicio.php");
-        }
-        exit();
+    if ($usuario['ROL'] === 'admin') {
+      header("Location: /petfriend2/src/admin_dashboard.php");
     } else {
-        $error = "Correo o contraseña incorrectos";
+      header("Location: inicio.php");
     }
+    exit();
+  } else {
+    $error = "Correo o contraseña incorrectos";
+  }
 }
 
 ?>
@@ -44,12 +44,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login</title>
   <link rel="stylesheet" href="/petfriend2/css/login.css" />
 </head>
+
 <body>
   <div class="logo">
     <img src="../multimedia/imagenes/LOGOTIPO PET FRIEND.png" alt="LOGOTIPO" width="130px">
@@ -78,6 +80,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
   </div>
 </body>
+
 </html>
-
-
